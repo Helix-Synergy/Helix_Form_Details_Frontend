@@ -1,170 +1,166 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import axios from "axios";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import "./App.css";
 
-const App = () => {
-  const [data, setData] = useState([]);
+const API_URL = "https://helix-abstract-form-backend-1.onrender.com/api/forms/submit";
 
-  const [form, setForm] = useState({
+const App = () => {
+  const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
     affiliation: "",
     university: "",
     country: "",
     tracks: "",
+  });
+
+  const [files, setFiles] = useState({
     photo: null,
     abstract: null,
     biography: null,
   });
 
-  useEffect(() => {
-    fetchForms();
-  }, []);
+  const [loading, setLoading] = useState(false);
 
-  // GET DATA
-  const fetchForms = async () => {
-    try {
-      const res = await axios.get("http://localhost:5000/api/forms/all");
-      setData(res.data);
-    } catch (error) {
-      console.log(error);
-    }
-  };
-
-  // HANDLE INPUT CHANGE
+  // Handle text input
   const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
+    setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  // HANDLE FILE CHANGE
+  // Handle file input
   const handleFileChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.files[0] });
+    setFiles({ ...files, [e.target.name]: e.target.files[0] });
   };
 
-  // SUBMIT FORM
+  // Submit form
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
+
+    const toastId = toast.loading("Submitting your abstract...", {
+      position: "top-right",
+      theme: "colored",
+    });
 
     try {
-      const formData = new FormData();
+      const data = new FormData();
 
-      Object.keys(form).forEach((key) => {
-        formData.append(key, form[key]);
-      });
+      // Convert tracks string → array
+      const tracksArray = formData.tracks
+        .split(",")
+        .map((t) => t.trim())
+        .filter((t) => t !== "");
 
-      await axios.post(
-        "http://localhost:5000/api/forms/submit",
-        formData,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
+      // Append text fields
+      Object.keys(formData).forEach((key) => {
+        if (key === "tracks") {
+          tracksArray.forEach((track) => {
+            data.append("tracks", track);
+          });
+        } else {
+          data.append(key, formData[key]);
         }
-      );
-
-      alert("Form submitted successfully");
-
-      // Reset form
-      setForm({
-        firstName: "",
-        lastName: "",
-        affiliation: "",
-        university: "",
-        country: "",
-        tracks: "",
-        photo: null,
-        abstract: null,
-        biography: null,
       });
 
-      fetchForms(); // refresh table
+      // Append files
+      data.append("photo", files.photo);
+      data.append("abstract", files.abstract);
+      data.append("biography", files.biography);
+
+      const res = await axios.post(API_URL, data, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
+
+      console.log(res.data);
+      
+      toast.update(toastId, {
+        render: "Form submitted successfully! 🎉",
+        type: "success",
+        isLoading: false,
+        autoClose: 5000,
+        theme: "colored",
+      });
+
     } catch (error) {
-      console.log(error);
+      console.error(error);
+      toast.update(toastId, {
+        render: "Submission failed! Please try again.",
+        type: "error",
+        isLoading: false,
+        autoClose: 5000,
+        theme: "colored",
+      });
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
     <div className="container">
-      <h2 className="title">User Form</h2>
+      <ToastContainer limit={3} />
+      <h1 className="title"> Abstract Form</h1>
 
-      {/* FORM */}
-      <form className="form" onSubmit={handleSubmit}>
-        <input name="firstName" placeholder="First Name" onChange={handleChange} required />
-        <input name="lastName" placeholder="Last Name" onChange={handleChange} required />
-        <input name="affiliation" placeholder="Affiliation" onChange={handleChange} required />
-        <input name="university" placeholder="University" onChange={handleChange} required />
-        <input name="country" placeholder="Country" onChange={handleChange} required />
-        <input name="tracks" placeholder="Tracks" onChange={handleChange} required />
+      <div className="form-card">
+        <form className="form" onSubmit={handleSubmit}>
+          <div className="form-group">
+            <label>First Name</label>
+            <input type="text" name="firstName" placeholder="John" onChange={handleChange} required />
+          </div>
+          
+          <div className="form-group">
+            <label>Last Name</label>
+            <input type="text" name="lastName" placeholder="Doe" onChange={handleChange} required />
+          </div>
 
-        <label>Photo:</label>
-        <input type="file" name="photo" onChange={handleFileChange} required />
+          <div className="form-group">
+            <label>Affiliation</label>
+            <input type="text" name="affiliation" placeholder="Company/Org" onChange={handleChange} />
+          </div>
 
-        <label>Abstract:</label>
-        <input type="file" name="abstract" onChange={handleFileChange} required />
+          <div className="form-group">
+            <label>University</label>
+            <input type="text" name="university" placeholder="Your University" onChange={handleChange} />
+          </div>
 
-        <label>Biography:</label>
-        <input type="file" name="biography" onChange={handleFileChange} required />
+          <div className="form-group">
+            <label>Country</label>
+            <input type="text" name="country" placeholder="Country" onChange={handleChange} />
+          </div>
 
-        <button type="submit">Submit</button>
-      </form>
+          <div className="form-group">
+            <label>Tracks</label>
+            <input
+              type="text"
+              name="tracks"
+              placeholder="AI, Blockchain, Web3 (comma separated)"
+              onChange={handleChange}
+            />
+          </div>
 
-      {/* <h2 className="title">Admin Dashboard</h2> */}
+          <div className="form-group full-width">
+            <label>Passport Photo (Required)</label>
+            <input type="file" name="photo" accept="image/*" onChange={handleFileChange} required />
+          </div>
 
-      {/* TABLE */}
-      {/* <table className="styled-table">
-        <thead>
-          <tr>
-            <th>First Name</th>
-            <th>Last Name</th>
-            <th>Affiliation</th>
-            <th>University</th>
-            <th>Country</th>
-            <th>Tracks</th>
-            <th>Photo</th>
-            <th>Abstract</th>
-            <th>Biography</th>
-          </tr>
-        </thead>
+          <div className="form-group">
+            <label>Abstract (PDF/DOC)</label>
+            <input type="file" name="abstract" accept=".pdf,.doc,.docx" onChange={handleFileChange} required />
+          </div>
 
-        <tbody>
-          {data.map((item) => (
-            <tr key={item._id}>
-              <td>{item.firstName}</td>
-              <td>{item.lastName}</td>
-              <td>{item.affiliation}</td>
-              <td>{item.university}</td>
-              <td>{item.country}</td>
-              <td>{item.tracks}</td>
+          <div className="form-group">
+            <label>Biography (PDF/DOC)</label>
+            <input type="file" name="biography" accept=".pdf,.doc,.docx" onChange={handleFileChange} required />
+          </div>
 
-              <td>
-                <img
-                  src={`http://localhost:5000/${item.photo?.replace(/\\/g, "/")}`}
-                  alt=""
-                  className="photo"
-                />
-              </td>
-
-              <td>
-                <a
-                  href={`http://localhost:5000/${item.abstract?.replace(/\\/g, "/")}`}
-                  target="_blank"
-                >
-                  View
-                </a>
-              </td>
-
-              <td>
-                <a
-                  href={`http://localhost:5000/${item.biography?.replace(/\\/g, "/")}`}
-                  target="_blank"
-                >
-                  View
-                </a>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table> */}
+          <button type="submit" disabled={loading}>
+            {loading ? "Processing..." : "Submit Submission"}
+          </button>
+        </form>
+      </div>
     </div>
   );
 };

@@ -1,65 +1,199 @@
+:root {
+  --primary: #6366f1;
+  --primary-hover: #4f46e5;
+  --bg-gradient: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+  --card-bg: rgba(255, 255, 255, 0.9);
+  --text-main: #1e293b;
+  --text-muted: #64748b;
+  --shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  background: var(--bg-gradient);
+  min-height: 100vh;
+  color: var(--text-main);
+  line-height: 1.5;
+}
+
 .container {
-  padding: 20px;
-  font-family: Arial;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 40px 20px;
 }
 
 .title {
   text-align: center;
-  margin: 20px 0;
+  font-size: 2.5rem;
+  font-weight: 800;
+  margin-bottom: 2rem;
+  background: linear-gradient(to right, #6366f1, #a855f7);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  letter-spacing: -0.025em;
 }
 
-/* FORM */
+/* FORM WRAPPER */
+.form-card {
+  background: var(--card-bg);
+  backdrop-filter: blur(10px);
+  padding: 40px;
+  border-radius: 20px;
+  box-shadow: var(--shadow);
+  max-width: 600px;
+  margin: 0 auto 50px;
+  border: 1px solid rgba(255, 255, 255, 0.5);
+}
+
 .form {
   display: grid;
-  gap: 10px;
-  max-width: 500px;
-  margin: auto;
-  padding: 20px;
-  background: #f4f6f9;
-  border-radius: 10px;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
 }
 
-.form input {
-  padding: 10px;
-  border: 1px solid #ccc;
-  border-radius: 5px;
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 }
 
-.form button {
-  padding: 10px;
-  background: #007bff;
-  color: white;
-  border: none;
-  cursor: pointer;
-  border-radius: 5px;
+.form-group.full-width {
+  grid-column: span 2;
 }
 
-.form button:hover {
-  background: #0056b3;
+.form label {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  margin-left: 4px;
 }
 
-/* TABLE */
-.styled-table {
-  width: 100%;
-  margin-top: 30px;
-  border-collapse: collapse;
+.form input[type="text"],
+.form input[type="email"] {
+  padding: 12px 16px;
+  border: 2px solid #e2e8f0;
+  border-radius: 12px;
+  font-size: 1rem;
+  transition: all 0.2s ease;
   background: white;
 }
 
-.styled-table th,
-.styled-table td {
-  padding: 10px;
-  border: 1px solid #ddd;
-  text-align: center;
+.form input:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
 }
 
-.styled-table thead {
-  background: #007bff;
+.form input[type="file"] {
+  padding: 8px 0;
+  font-size: 0.875rem;
+}
+
+.form button {
+  grid-column: span 2;
+  padding: 14px;
+  background: var(--primary);
+  color: white;
+  border: none;
+  border-radius: 12px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  margin-top: 10px;
+  box-shadow: 0 4px 6px -1px rgba(99, 102, 241, 0.3);
+}
+
+.form button:hover {
+  background: var(--primary-hover);
+  transform: translateY(-2px);
+  box-shadow: 0 10px 15px -3px rgba(99, 102, 241, 0.4);
+}
+
+.form button:active {
+  transform: translateY(0);
+}
+
+/* TABLE SECTION */
+.table-container {
+  overflow-x: auto;
+  background: white;
+  border-radius: 20px;
+  box-shadow: var(--shadow);
+  padding: 20px;
+}
+
+.styled-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: 0.95rem;
+}
+
+.styled-table th {
+  background: #f8fafc;
+  padding: 16px;
+  text-align: left;
+  font-weight: 700;
+  color: var(--text-muted);
+  border-bottom: 2px solid #f1f5f9;
+}
+
+.styled-table td {
+  padding: 16px;
+  border-bottom: 1px solid #f1f5f9;
+  vertical-align: middle;
+}
+
+.styled-table tr:last-child td {
+  border-bottom: none;
+}
+
+.styled-table tr:hover td {
+  background: #fdfdfd;
+}
+
+.photo-cell img {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid white;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.link-btn {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 12px;
+  background: #f1f5f9;
+  color: var(--primary);
+  text-decoration: none;
+  border-radius: 8px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  transition: all 0.2s;
+}
+
+.link-btn:hover {
+  background: var(--primary);
   color: white;
 }
 
-.photo {
-  width: 50px;
-  height: 50px;
-  object-fit: cover;
+@media (max-width: 640px) {
+  .form {
+    grid-template-columns: 1fr;
+  }
+  .form-group.full-width {
+    grid-column: span 1;
+  }
+  .form button {
+    grid-column: span 1;
+  }
 }
